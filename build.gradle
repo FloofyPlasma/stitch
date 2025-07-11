@@ -119,7 +119,7 @@ task checkVersion {
 	doFirst {
 		String xml
 		try {
-			xml = new URL("https://maven.glass-launcher.net/babric/babric/stitch/maven-metadata.xml").text
+			xml = new URL("https://floofyplasma.github.io/aabric-libraries/aabric/stitch/maven-metadata.xml").text
 		} catch (FileNotFoundException ignored) {
 			return
 		}
