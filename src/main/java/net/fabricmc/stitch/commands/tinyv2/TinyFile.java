@@ -24,31 +24,50 @@ import java.util.stream.Collectors;
  * All lists and collections in this AST are mutable.
  */
 public class TinyFile {
-	private final TinyHeader header;
-	private final Collection<TinyClass> classEntries;
+    private final TinyHeader header;
+    private final Collection<TinyClass> classEntries;
 
-	public TinyFile(TinyHeader header, Collection<TinyClass> classEntries) {
-		this.header = header;
-		this.classEntries = classEntries;
-	}
+    public TinyFile(TinyHeader header, Collection<TinyClass> classEntries) {
+        this.header = header;
+        this.classEntries = classEntries;
+    }
 
-	/**
-	 * The key will be the name of the class in the first namespace, the value is the same as classEntries.
-	 * Useful for quickly retrieving a class based on a known name in the first namespace.
-	 */
-	public Map<String, TinyClass> mapClassesByFirstNamespace() {
-		return mapClassesByNamespace(0);
-	}
+    /**
+     * The key will be the name of the class in the first namespace, the value is
+     * the same as classEntries.
+     * Useful for quickly retrieving a class based on a known name in the first
+     * namespace.
+     */
+    public Map<String, TinyClass> mapClassesByFirstNamespace() {
+        return mapClassesByNamespace(0);
+    }
 
-	public Map<String, TinyClass> mapClassesByNamespace(int namespace) {
-		return classEntries.stream().collect(Collectors.toMap(c -> c.getClassNames().get(namespace), c -> c));
-	}
+    public Map<String, TinyClass> mapClassesByNamespace(int namespace) {
+        return classEntries.stream()
+                .collect(Collectors.toMap(
+                        c -> c.getClassNames().get(0),
+                        c -> c,
+                        (existing, replacement) -> {
+                            // If existing class has no fields and no methods but replacement has, prefer
+                            // replacement
+                            boolean existingHasContent = !existing.getFields().isEmpty()
+                                    || !existing.getMethods().isEmpty();
+                            boolean replacementHasContent = !replacement.getFields().isEmpty()
+                                    || !replacement.getMethods().isEmpty();
 
-	public TinyHeader getHeader() {
-		return header;
-	}
+                            if (!existingHasContent && replacementHasContent) {
+                                return replacement;
+                            } else {
+                                return existing; // keep existing if it has content or both have none
+                            }
+                        }));
+    }
 
-	public Collection<TinyClass> getClassEntries() {
-		return classEntries;
-	}
+    public TinyHeader getHeader() {
+        return header;
+    }
+
+    public Collection<TinyClass> getClassEntries() {
+        return classEntries;
+    }
 }

@@ -8,9 +8,9 @@ plugins {
 sourceCompatibility = 1.8
 
 def ENV = System.getenv()
-version = "0.6.2-babric.1" + (ENV.GITHUB_ACTIONS ? "" : "+local")
+version = "0.6.2-aabric.2" + (ENV.GITHUB_ACTIONS ? "" : "+local")
 
-group = 'babric'
+group = 'aabric'
 archivesBaseName = project.name.toLowerCase()
 
 repositories {
@@ -92,19 +92,22 @@ publishing {
 		}
 	}
 
-	// select the repositories you want to publish to
-	repositories {
-		if (ENV.MAVEN_URL) {
-			repositories.maven {
-				name "fabric"
-				url ENV.MAVEN_URL
-				credentials {
-					username ENV.MAVEN_USERNAME
-					password ENV.MAVEN_PASSWORD
-				}
-			}
-		}
-	}
+    repositories {
+        mavenLocal()
+        maven {
+            name = "localDistribution"
+            url = uri("$buildDir/dist")
+        }
+	    if (ENV.MAVEN_URL) {
+	    	maven {
+	    		url ENV.MAVEN_URL
+	    		credentials {
+	    			username ENV.MAVEN_USERNAME
+	    			password ENV.MAVEN_PASSWORD
+	    		}
+	    	}
+	    }
+    }
 }
 
 test {
